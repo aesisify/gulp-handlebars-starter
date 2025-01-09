@@ -6,6 +6,8 @@ import hb from "gulp-hb";
 import layouts from "handlebars-layouts";
 import htmlmin from "gulp-htmlmin";
 import prettier from "gulp-prettier";
+import * as dartSass from "sass";
+import gulpSass from "gulp-sass";
 import postcss from "gulp-postcss";
 import autoprefixer from "autoprefixer";
 import cssnano from "cssnano";
@@ -16,9 +18,9 @@ import { deleteAsync } from "del";
 import fs from "fs";
 import path from "path";
 
-let sass; // Dynamically import Dart Sass
-
 const browserSync = browserSyncLib.create();
+
+const sass = gulpSass(dartSass);
 
 const paths = {
   data: "src/data",
@@ -31,9 +33,36 @@ const paths = {
   scss: "src/assets/css/**/*.scss",
   css: "src/assets/css/**/*.css",
   scripts: "src/assets/js/**/*.js",
-  images: "src/assets/images/**/*.{png,jpg,jpeg,svg}",
+  images: "src/assets/img/**/*.{png,jpg,jpeg,svg}",
   dist: "dist",
 };
+
+// Ensure directories exist
+function ensureDirectories(done) {
+  const directories = [
+    paths.data,
+    path.dirname(paths.layouts), // Base directory of layouts
+    path.dirname(paths.partials), // Base directory of partials
+    path.dirname(paths.pages), // Base directory of pages
+    paths.helpers,
+    paths.decorators,
+    paths.assets,
+    paths.scss,
+    paths.scripts,
+    paths.images,
+    paths.dist,
+  ];
+
+  directories.forEach((dir) => {
+    const cleanDir = dir.replace(/\/\*\*.*$/, ""); // Remove wildcard patterns
+    if (!fs.existsSync(cleanDir)) {
+      fs.mkdirSync(cleanDir, { recursive: true });
+      console.log(`Created missing directory: ${cleanDir}`);
+    }
+  });
+
+  done(); // Signal task completion
+}
 
 // Clean dist folder
 export async function clean() {
@@ -74,9 +103,6 @@ function html() {
 
 // Compile SCSS to CSS
 export async function scss() {
-  if (!sass)
-    sass = (await import("gulp-sass")).default((await import("sass")).default);
-
   return gulp
     .src(paths.scss)
     .pipe(plumber())
@@ -115,28 +141,31 @@ export function scripts() {
 // Optimize and copy images
 export async function images() {
   const imagemin = (await import("gulp-imagemin")).default;
+  const mozjpeg = (await import("imagemin-mozjpeg")).default;
+  const optipng = (await import("imagemin-optipng")).default;
+  const svgo = (await import("imagemin-svgo")).default;
 
-  return gulp
+  return await gulp
     .src(paths.images)
     .pipe(plumber())
-    .pipe(imagemin())
-    .pipe(gulp.dest(`${paths.dist}/images`));
+    .pipe(
+      imagemin([
+        mozjpeg({ quality: 75, progressive: true }), // Optimize JPEGs
+        optipng({ optimizationLevel: 5 }), // Optimize PNGs
+        svgo({
+          plugins: [
+            { name: "removeViewBox", active: false }, // Keep viewBox attribute
+          ],
+        }), // Optimize SVGs
+      ])
+    )
+    .pipe(gulp.dest(`${paths.dist}/assets/img`));
 }
 
-// Copy assets excluding certain file types
+// Copy assets
 export function assets() {
   return gulp
-    .src(
-      [
-        paths.assets,
-        "!src/assets/**/*.scss",
-        "!src/assets/**/*.css",
-        "!src/assets/**/*.js",
-        "!src/assets/**/*.map",
-        "!src/assets/**/*.{png,jpg,jpeg,svg}",
-      ],
-      { base: "src" }
-    )
+    .src(paths.assets, { base: "src", encoding: false })
     .pipe(gulp.dest(paths.dist));
 }
 
@@ -186,6 +215,7 @@ export function serve() {
 // Build task
 export const build = gulp.series(
   clean,
+  ensureDirectories,
   gulp.parallel(templates, assets, scss, css, scripts, images),
   html
 );
