@@ -8,7 +8,7 @@
   },
   "author": "Oğuz 'Aesisify' Gergin",
   "license": "CC0",
-  "description": "A simple setup using*Gulp and Handlebars (with layout support) to compile HTML, copy assets, and run a live server.",
+  "description": "A simple setup using Gulp and Handlebars (with layout support) to compile HTML, copy assets, and run a live server.",
   "devDependencies": {
     "browser-sync": "^3.0.3",
     "del": "^8.0.0",
