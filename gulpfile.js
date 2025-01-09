@@ -17,9 +17,13 @@ import browserSyncLib from "browser-sync";
 import { deleteAsync } from "del";
 import fs from "fs";
 import path from "path";
+import cache from "gulp-cached";
+import remember from "gulp-remember";
+import size from "gulp-size";
+import filter from "gulp-filter";
+import changed from "gulp-changed";
 
 const browserSync = browserSyncLib.create();
-
 const sass = gulpSass(dartSass);
 
 const paths = {
@@ -39,29 +43,17 @@ const paths = {
 
 // Ensure directories exist
 function ensureDirectories(done) {
-  const directories = [
-    paths.data,
-    path.dirname(paths.layouts), // Base directory of layouts
-    path.dirname(paths.partials), // Base directory of partials
-    path.dirname(paths.pages), // Base directory of pages
-    paths.helpers,
-    paths.decorators,
-    paths.assets,
-    paths.scss,
-    paths.scripts,
-    paths.images,
-    paths.dist,
-  ];
+  const directories = Object.values(paths)
+    .map((p) => p.replace(/\/\*\*.*$/, ""))
+    .filter((dir, index, self) => self.indexOf(dir) === index);
 
   directories.forEach((dir) => {
-    const cleanDir = dir.replace(/\/\*\*.*$/, ""); // Remove wildcard patterns
-    if (!fs.existsSync(cleanDir)) {
-      fs.mkdirSync(cleanDir, { recursive: true });
-      console.log(`Created missing directory: ${cleanDir}`);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+      console.log(`Created missing directory: ${dir}`);
     }
   });
-
-  done(); // Signal task completion
+  done();
 }
 
 // Clean dist folder
@@ -84,44 +76,59 @@ export function loadData() {
 
 function html() {
   return gulp
-    .src(`${paths.dist}/**/*.html`) // Target all HTML files
+    .src(`${paths.dist}/**/*.html`)
     .pipe(
       htmlmin({
-        collapseWhitespace: true, // Minify HTML
-        removeComments: true, // Remove all comments
+        collapseWhitespace: true,
+        removeComments: true,
+        minifyJS: true,
+        minifyCSS: true,
       })
     )
     .pipe(
       prettier({
-        parser: "html", // Format with Prettier
+        parser: "html",
         htmlWhitespaceSensitivity: "ignore",
         bracketSameLine: true,
       })
     )
-    .pipe(gulp.dest(paths.dist)); // Save formatted and cleaned HTML
+    .pipe(size({ title: "HTML", showFiles: true }))
+    .pipe(gulp.dest(paths.dist));
 }
 
 // Compile SCSS to CSS
-export async function scss() {
+export function scss() {
+  const processors = [
+    autoprefixer(),
+    cssnano({ preset: ["default", { discardComments: { removeAll: true } }] }),
+  ];
+
   return gulp
     .src(paths.scss)
     .pipe(plumber())
     .pipe(sourcemaps.init())
-    .pipe(sass().on("error", sass.logError))
-    .pipe(postcss([autoprefixer(), cssnano()]))
+    .pipe(sass({ outputStyle: "compressed" }).on("error", sass.logError))
+    .pipe(postcss(processors))
     .pipe(sourcemaps.write("."))
+    .pipe(size({ title: "CSS", showFiles: true }))
     .pipe(gulp.dest(`${paths.dist}/assets/css`))
     .pipe(browserSync.stream());
 }
 
-// Copy plain CSS files
+// Copy and optimize plain CSS files
 export function css() {
+  const processors = [
+    autoprefixer(),
+    cssnano({ preset: ["default", { discardComments: { removeAll: true } }] }),
+  ];
+
   return gulp
     .src(paths.css)
     .pipe(plumber())
     .pipe(sourcemaps.init())
-    .pipe(postcss([autoprefixer(), cssnano()]))
+    .pipe(postcss(processors))
     .pipe(sourcemaps.write("."))
+    .pipe(size({ title: "CSS", showFiles: true }))
     .pipe(gulp.dest(`${paths.dist}/assets/css`))
     .pipe(browserSync.stream());
 }
@@ -132,8 +139,16 @@ export function scripts() {
     .src(paths.scripts)
     .pipe(plumber())
     .pipe(sourcemaps.init())
-    .pipe(terser())
+    .pipe(
+      terser({
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+        },
+      })
+    )
     .pipe(sourcemaps.write("."))
+    .pipe(size({ title: "JS", showFiles: true }))
     .pipe(gulp.dest(`${paths.dist}/assets/js`))
     .pipe(browserSync.stream());
 }
@@ -145,28 +160,38 @@ export async function images() {
   const optipng = (await import("imagemin-optipng")).default;
   const svgo = (await import("imagemin-svgo")).default;
 
-  return await gulp
+  return gulp
     .src(paths.images)
     .pipe(plumber())
+    .pipe(changed(`${paths.dist}/assets/img`))
     .pipe(
-      imagemin([
-        mozjpeg({ quality: 75, progressive: true }), // Optimize JPEGs
-        optipng({ optimizationLevel: 5 }), // Optimize PNGs
-        svgo({
-          plugins: [
-            { name: "removeViewBox", active: false }, // Keep viewBox attribute
-          ],
-        }), // Optimize SVGs
-      ])
+      imagemin(
+        [
+          mozjpeg({ quality: 75, progressive: true }),
+          optipng({ optimizationLevel: 5 }),
+          svgo({
+            plugins: [
+              { name: "removeViewBox", active: false },
+              { name: "cleanupIDs", active: false },
+            ],
+          }),
+        ],
+        { verbose: true }
+      )
     )
-    .pipe(gulp.dest(`${paths.dist}/assets/img`));
+    .pipe(size({ title: "Images", showFiles: true }))
+    .pipe(gulp.dest(`${paths.dist}/assets/img`))
+    .pipe(browserSync.stream());
 }
 
 // Copy assets
 export function assets() {
   return gulp
-    .src(paths.assets, { base: "src", encoding: false })
-    .pipe(gulp.dest(paths.dist));
+    .src(paths.assets, { base: "src" })
+    .pipe(changed(paths.dist))
+    .pipe(size({ title: "Assets", showFiles: true }))
+    .pipe(gulp.dest(paths.dist))
+    .pipe(browserSync.stream());
 }
 
 // Compile Handlebars templates to HTML
@@ -184,6 +209,7 @@ export function templates() {
         .helpers(layouts)
     )
     .pipe(rename({ extname: ".html" }))
+    .pipe(size({ title: "Templates", showFiles: true }))
     .pipe(gulp.dest(paths.dist));
 }
 
@@ -193,26 +219,77 @@ export function reload(done) {
   done();
 }
 
-// Serve with BrowserSync and watch for changes
+// Optimized watch configuration
 export function serve() {
   browserSync.init({
     server: { baseDir: paths.dist },
+    open: false,
+    notify: false,
+    ghostMode: false,
+    ui: false,
   });
 
-  gulp.watch(paths.scss, scss);
-  gulp.watch(paths.css, css);
-  gulp.watch(paths.scripts, scripts);
-  gulp.watch(paths.images, images);
-  gulp.watch(paths.pages, gulp.series(templates, html, reload));
-  gulp.watch(paths.layouts, gulp.series(templates, html, reload));
-  gulp.watch(paths.partials, gulp.series(templates, html, reload));
-  gulp.watch(paths.helpers, gulp.series(templates, html, reload));
-  gulp.watch(paths.decorators, gulp.series(templates, html, reload));
-  gulp.watch(`${paths.data}/**/*.json`, gulp.series(templates, reload));
-  gulp.watch(paths.assets, gulp.series(assets, reload));
+  // Watch templates and related files
+  gulp.watch(
+    [
+      paths.pages,
+      paths.layouts,
+      paths.partials,
+      paths.helpers,
+      paths.decorators,
+    ],
+    { ignoreInitial: false },
+    gulp.series(templates, html, reload)
+  );
+
+  // Watch data files
+  gulp.watch(
+    `${paths.data}/**/*.json`,
+    { ignoreInitial: false },
+    gulp.series(templates, html, reload)
+  );
+
+  // Watch styles
+  gulp.watch(paths.scss, { ignoreInitial: false }, scss);
+  gulp.watch(paths.css, { ignoreInitial: false }, css);
+
+  // Watch scripts
+  gulp.watch(
+    paths.scripts,
+    { ignoreInitial: false },
+    gulp.series(scripts, reload)
+  );
+
+  // Watch images
+  gulp.watch(
+    paths.images,
+    { ignoreInitial: false },
+    gulp.series(images, reload)
+  );
+
+  // Watch other assets
+  gulp.watch(
+    [
+      paths.assets,
+      `!${paths.scss}`,
+      `!${paths.css}`,
+      `!${paths.scripts}`,
+      `!${paths.images}`,
+    ],
+    { ignoreInitial: false },
+    gulp.series(assets, reload)
+  );
 }
 
-// Build task
+// Development build
+export const dev = gulp.series(
+  clean,
+  ensureDirectories,
+  gulp.parallel(templates, assets, scss, css, scripts, images),
+  html
+);
+
+// Production build
 export const build = gulp.series(
   clean,
   ensureDirectories,
@@ -221,4 +298,4 @@ export const build = gulp.series(
 );
 
 // Default task
-export default gulp.series(build, serve);
+export default gulp.series(dev, serve);

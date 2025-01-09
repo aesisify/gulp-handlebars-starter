@@ -1,5 +1,7 @@
 {
-  "title": "Gulp - Handlebars Starter",
+  "title": "Gulp Handlebars Kit",
+  "description": "A modern starter kit for building fast, beautiful static sites with Gulp and Handlebars",
+  "author": "Oğuz 'Aesisify' Gergin",
   "year": 2025,
   "link": "https://github.com/aesisify/gulp-handlebars-starter"
 }
