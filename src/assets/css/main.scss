@@ -1,10 +1,17 @@
+// Variables
+$background-color: #333;
+$text-color: #f8f8f8;
+$header-footer-bg: #1a1a1a;
+$font-family: sans-serif;
+
+// Base styles
 body {
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
+  font-family: $font-family;
   line-height: 1.4;
-  background-color: #333;
-  color: #f8f8f8;
+  background-color: $background-color;
+  color: $text-color;
   height: 100vh;
   width: 100vw;
   display: flex;
@@ -22,16 +29,17 @@ main {
 
 header,
 footer {
-  background: #1a1a1a;
+  background: $header-footer-bg;
   padding: 1em;
   text-align: center;
+
+  h1,
+  p {
+    margin: 0;
+  }
 }
 
-header h1,
-footer p {
-  margin: 0;
-}
-
+// Typography
 h2 {
   margin: 0 0 0.5em 0;
 }
@@ -42,6 +50,6 @@ p {
 
 a,
 a:visited {
-  color: #f8f8f8;
+  color: $text-color;
   text-decoration: underline;
 }
