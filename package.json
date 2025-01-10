@@ -4,9 +4,9 @@
   "description": "A simple setup using Gulp and Handlebars (with layout support) to compile HTML, copy assets, and run a live server.",
   "type": "module",
   "scripts": {
-    "start": "gulp",
-    "build": "gulp build",
-    "clean": "gulp clean"
+    "start": "node --no-deprecation ./node_modules/gulp/bin/gulp.js",
+    "build": "node --no-deprecation ./node_modules/gulp/bin/gulp.js build",
+    "clean": "node --no-deprecation ./node_modules/gulp/bin/gulp.js clean"
   },
   "author": "Oğuz 'Aesisify' Gergin",
   "license": "CC0",
