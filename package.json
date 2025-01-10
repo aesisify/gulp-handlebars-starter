@@ -30,7 +30,6 @@
     "gulp-remember": "^1.0.1",
     "gulp-rename": "^2.0.0",
     "gulp-sass": "^6.0.0",
-    "gulp-size": "^5.0.0",
     "gulp-sourcemaps": "^3.0.0",
     "gulp-terser": "^2.1.0",
     "handlebars-layouts": "^3.1.4",

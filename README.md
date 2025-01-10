@@ -27,11 +27,12 @@ _A modern build system for static sites using Gulp 5 and Handlebars, featuring o
 
 ### ⚡ Performance Optimizations
 
-- 📊 Efficient caching system for templates and assets
-- 🔄 Incremental builds with `gulp-cached` and `gulp-remember`
+- 📊 Incremental builds with `gulp-cached` and `gulp-remember`
 - 🗺️ Source maps for CSS and JavaScript
 - 📦 Minification for all assets (HTML, CSS, JS, images)
 - 🔒 Cache busting for production builds
+- 🛡️ Error handling with plumber to prevent build breaks
+- 🔍 Changed file detection for optimized rebuilds
 
 ## 🚀 Installation
 
@@ -103,14 +104,12 @@ npm run clean    # Removes the dist directory
 - 📦 ES modules support
 - 🔧 Code minification with Terser
 - 🗺️ Source maps for debugging
-- 🧹 Console stripping in production
 
 ### 📦 Asset Processing
 
 - 🖼️ Automatic image optimization (mozjpeg, optipng, svgo, gifsicle)
 - 👀 Intelligent file watching and copying
 - 🔒 Cache busting for production
-- 📊 Size reporting for build output
 
 ### 🔄 Development Server
 

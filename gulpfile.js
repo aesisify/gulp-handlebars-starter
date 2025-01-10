@@ -17,7 +17,6 @@ import browserSyncLib from "browser-sync";
 import { deleteAsync } from "del";
 import fs from "fs";
 import path from "path";
-import size from "gulp-size";
 import changed from "gulp-changed";
 import cache from "gulp-cached";
 import remember from "gulp-remember";
@@ -31,26 +30,6 @@ process.env.NO_DEPRECATION = "*";
 
 const browserSync = browserSyncLib.create();
 const sass = gulpSass(dartSass);
-
-// Size tracking
-const sizes = {
-  scripts: {
-    original: size({ title: "JavaScript (Original)", ...config.size }),
-    optimized: size({ title: "JavaScript (Minified)", ...config.size }),
-  },
-  styles: {
-    original: size({ title: "CSS (Original)", ...config.size }),
-    optimized: size({ title: "CSS (Minified)", ...config.size }),
-  },
-  images: {
-    original: size({ title: "Images (Original)", ...config.size }),
-    optimized: size({ title: "Images (Optimized)", ...config.size }),
-  },
-  html: {
-    original: size({ title: "HTML (Original)", ...config.size }),
-    optimized: size({ title: "HTML (Minified)", ...config.size }),
-  },
-};
 
 // Cache busting string
 const cacheBust = Date.now().toString();
@@ -119,30 +98,12 @@ function loadData() {
   }
 }
 
-// Function to log size comparison
-function logSizeComparison(type) {
-  const originalSize = sizes[type].original.size;
-  const optimizedSize = sizes[type].optimized.size;
-  const savings = originalSize - optimizedSize;
-
-  // Skip logging if there's no original size or no change
-  if (originalSize === 0 || savings === 0) {
-    return;
-  }
-
-  const percentage = ((savings / originalSize) * 100).toFixed(2);
-  console.log(
-    `${type} size savings: ${(savings / 1024).toFixed(2)} KB (${percentage}% reduction)`
-  );
-}
-
 // HTML optimization
 function html() {
   return gulp
     .src(`${paths.dist}/**/*.html`)
     .pipe(plumber({ errorHandler: handleError }))
     .pipe(changed(paths.dist, { hasChanged: changed.compareLastModifiedTime }))
-    .pipe(sizes.html.original)
     .pipe(htmlmin(config.html))
     .pipe(
       prettier({
@@ -151,8 +112,6 @@ function html() {
         bracketSameLine: true,
       })
     )
-    .pipe(sizes.html.optimized)
-    .on("end", () => logSizeComparison("html"))
     .pipe(gulp.dest(paths.dist));
 }
 
@@ -163,7 +122,6 @@ function scss() {
     .pipe(plumber({ errorHandler: handleError }))
     .pipe(cache("scss"))
     .pipe(sourcemaps.init())
-    .pipe(sizes.styles.original)
     .pipe(sass(config.sass).on("error", sass.logError))
     .pipe(
       postcss([
@@ -171,8 +129,6 @@ function scss() {
         cssnano(config.postcss.cssnano),
       ])
     )
-    .pipe(sizes.styles.optimized)
-    .on("end", () => logSizeComparison("styles"))
     .pipe(sourcemaps.write("."))
     .pipe(remember("scss"))
     .pipe(gulp.dest(`${paths.dist}/assets/css`))
@@ -195,7 +151,6 @@ function css() {
     )
     .pipe(sourcemaps.write("."))
     .pipe(remember("css"))
-    .pipe(size({ ...config.size, title: "Optimized CSS" }))
     .pipe(gulp.dest(`${paths.dist}/assets/css`))
     .pipe(filter("**/*.css"))
     .pipe(browserSync.stream());
@@ -208,10 +163,7 @@ function scripts() {
     .pipe(plumber({ errorHandler: handleError }))
     .pipe(cache("scripts"))
     .pipe(sourcemaps.init())
-    .pipe(sizes.scripts.original)
     .pipe(terser(config.terser))
-    .pipe(sizes.scripts.optimized)
-    .on("end", () => logSizeComparison("scripts"))
     .pipe(sourcemaps.write("."))
     .pipe(remember("scripts"))
     .pipe(gulp.dest(`${paths.dist}/assets/js`))
@@ -240,7 +192,6 @@ async function images(done) {
           hasChanged: changed.compareLastModifiedTime,
         })
       )
-      .pipe(sizes.images.original)
       .pipe(
         imagemin(
           [
@@ -255,8 +206,6 @@ async function images(done) {
           }
         )
       )
-      .pipe(sizes.images.optimized)
-      .on("end", () => logSizeComparison("images"))
       .pipe(vinylFs.dest(`${paths.dist}/assets/img`));
 
     stream.on("end", () => {
@@ -294,12 +243,11 @@ function assets() {
     })
     .pipe(plumber({ errorHandler: handleError }))
     .pipe(changed(paths.dist))
-    .pipe(size({ ...config.size, title: "Copied Assets" }))
     .pipe(vinylFs.dest(paths.dist))
     .pipe(browserSync.stream());
 }
 
-// Handlebars templates compilation
+// Templates compilation
 function templates() {
   return gulp
     .src(paths.pages)
@@ -319,7 +267,6 @@ function templates() {
     )
     .pipe(rename({ extname: ".html" }))
     .pipe(remember("templates"))
-    .pipe(size({ ...config.size, title: "Compiled Templates" }))
     .pipe(gulp.dest(paths.dist));
 }
 
