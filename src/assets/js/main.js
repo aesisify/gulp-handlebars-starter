@@ -35,3 +35,5 @@ document.addEventListener("DOMContentLoaded", () => {
     observer.observe(feature);
   });
 });
+
+console.log("Hello World");

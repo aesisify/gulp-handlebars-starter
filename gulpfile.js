@@ -345,6 +345,7 @@ function serve(done) {
   gulp.watch(
     paths.pages,
     gulp.series(templates, html, (done) => {
+      console.log("🔄 Reloading browser due to template page changes...");
       browserSync.reload();
       done();
     })
@@ -354,6 +355,7 @@ function serve(done) {
   gulp.watch(
     [paths.layouts, paths.partials],
     gulp.series(clearTemplateCache, templates, html, (done) => {
+      console.log("🔄 Reloading browser due to layout/partial changes...");
       browserSync.reload();
       done();
     })
@@ -363,6 +365,7 @@ function serve(done) {
   gulp.watch(
     [paths.helpers, paths.decorators],
     gulp.series(clearTemplateCache, templates, html, (done) => {
+      console.log("🔄 Reloading browser due to helper/decorator changes...");
       browserSync.reload();
       done();
     })
@@ -372,6 +375,7 @@ function serve(done) {
   gulp.watch(
     `${paths.data}/**/*.json`,
     gulp.series(clearTemplateCache, templates, html, (done) => {
+      console.log("🔄 Reloading browser due to data file changes...");
       browserSync.reload();
       done();
     })
@@ -385,6 +389,7 @@ function serve(done) {
   gulp.watch(
     paths.scripts,
     gulp.series(scripts, (done) => {
+      console.log("🔄 Reloading browser due to script changes...");
       browserSync.reload();
       done();
     })
@@ -394,6 +399,7 @@ function serve(done) {
   gulp.watch(
     paths.images,
     gulp.series(images, (done) => {
+      console.log("🔄 Reloading browser due to image changes...");
       browserSync.reload();
       done();
     })
@@ -407,8 +413,10 @@ function serve(done) {
       `!${paths.css}`,
       `!${paths.scripts}`,
       `!${paths.images}`,
+      `!${paths.maps}`,
     ],
     gulp.series(assets, (done) => {
+      console.log("🔄 Reloading browser due to other asset changes...");
       browserSync.reload();
       done();
     })
