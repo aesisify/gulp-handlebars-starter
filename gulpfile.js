@@ -171,7 +171,7 @@ function scripts() {
     .pipe(browserSync.stream());
 }
 
-// Image optimization
+// Image optimization for production
 async function images(done) {
   try {
     const imagemin = (await import("gulp-imagemin")).default;
@@ -223,6 +223,20 @@ async function images(done) {
     console.error("Error loading image optimization modules:", error);
     done(error);
   }
+}
+
+// Simple image copying for development
+function imagesCopy() {
+  return vinylFs
+    .src(paths.images, {
+      encoding: null,
+      resolveSymlinks: false,
+      removeBOM: false,
+    })
+    .pipe(plumber({ errorHandler: handleError }))
+    .pipe(changed(`${paths.dist}/assets/img`))
+    .pipe(vinylFs.dest(`${paths.dist}/assets/img`))
+    .pipe(browserSync.stream());
 }
 
 // Asset copying
@@ -281,6 +295,14 @@ const build = gulp.series(
   clean,
   ensureDirectories,
   gulp.parallel(templates, assets, scss, css, scripts, images),
+  html
+);
+
+// Development build task
+const devBuild = gulp.series(
+  clean,
+  ensureDirectories,
+  gulp.parallel(templates, assets, scss, css, scripts, imagesCopy),
   html
 );
 
@@ -345,7 +367,7 @@ function serve(done) {
   // Watch images
   gulp.watch(
     paths.images,
-    gulp.series(images, (done) => {
+    gulp.series(imagesCopy, (done) => {
       console.log("🔄 Reloading browser due to image changes...");
       browserSync.reload();
       done();
@@ -372,8 +394,8 @@ function serve(done) {
   done();
 }
 
-// Default task
-export default gulp.series(build, serve);
+// Default task (development)
+export default gulp.series(devBuild, serve);
 
 // Export tasks
 export { clean, build };
