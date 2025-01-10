@@ -1,28 +1,51 @@
 {{#extend "base"}}
   {{#content "title"}}
-    {{site.title}} - Modern Static Site Generator
+    {{uppercase site.title}} - Build System
   {{/content}}
 
   {{#content "content"}}
     <h2>
-      Build Beautiful Static Sites
+      {{#emphasize color="#4caf50" type="text" style="bold"}}
+        Modern
+      {{/emphasize}}
+      Static Site Builder
     </h2>
     <p class="text-center">
-      A modern starter kit using Gulp and Handlebars for rapid static site
-      development.
+      {{uppercase "Powerful"}}
+      {{#emphasize color="#ff5252" style="bold"}}
+        {{uppercase "gulp"}}
+      {{/emphasize}}
+      and
+      {{#emphasize color="#2196f3" style="bold"}}
+        {{uppercase "handlebars"}}
+      {{/emphasize}}
+      development environment
     </p>
 
     <div class="content" id="features">
       <div class="feature">
         <h3>
           <span>
-            🚀
+            ⚙️
           </span>
-          Lightning Fast
+          Templates
         </h3>
         <p>
-          Optimized build process with parallel processing and smart caching for
-          rapid development and production builds.
+          Handlebars templating with layouts, partials, helpers, and
+          live-reloading data integration for dynamic content.
+        </p>
+      </div>
+
+      <div class="feature">
+        <h3>
+          <span>
+            🔄
+          </span>
+          Smart Cache
+        </h3>
+        <p>
+          Lightning-fast incremental builds with gulp-cached and gulp-remember.
+          Only processes files that have changed.
         </p>
       </div>
 
@@ -31,50 +54,24 @@
           <span>
             📦
           </span>
-          Modern Stack
+          Assets
         </h3>
         <p>
-          Built with Gulp, Handlebars, Sass, and modern JavaScript. Includes hot
-          reloading and automatic optimization.
+          Complete asset pipeline with SCSS compilation, PostCSS processing, and
+          automatic optimization for images and styles.
         </p>
       </div>
 
       <div class="feature">
         <h3>
           <span>
-            🎨
+            🔍
           </span>
-          Beautiful by Default
+          Dev Tools
         </h3>
         <p>
-          Comes with a modern, responsive design system and beautiful
-          typography. Just add your content and you're ready to go.
-        </p>
-      </div>
-
-      <div class="feature">
-        <h3>
-          <span>
-            🛠
-          </span>
-          Developer Friendly
-        </h3>
-        <p>
-          Well-organized project structure, clear documentation, and
-          easy-to-customize components make development a breeze.
-        </p>
-      </div>
-
-      <div class="feature">
-        <h3>
-          <span>
-            📱
-          </span>
-          Fully Responsive
-        </h3>
-        <p>
-          Looks great on all devices with a mobile-first approach and fluid
-          typography using modern CSS features.
+          Developer-friendly tools with source maps, live reload, and instant
+          CSS injection for seamless development.
         </p>
       </div>
 
@@ -83,11 +80,24 @@
           <span>
             ⚡️
           </span>
-          Performance First
+          Performance
         </h3>
         <p>
-          Optimized assets, minimal dependencies, and efficient build process
-          ensure your site loads lightning fast.
+          Production-ready builds with cache busting, asset minification, and
+          comprehensive optimization features.
+        </p>
+      </div>
+
+      <div class="feature">
+        <h3>
+          <span>
+            🔧
+          </span>
+          JS Tools
+        </h3>
+        <p>
+          Modern JavaScript workflow with Terser minification, source maps, and
+          configurable development/production modes.
         </p>
       </div>
     </div>

@@ -1,115 +1,127 @@
-# 🚀 Gulp Handlebars Kit
+# Gulp Handlebars Starter
 
-A modern starter kit for building fast, beautiful static sites with Gulp and Handlebars. Features a powerful build system, live reload, and a beautiful default theme.
+A modern build system for static sites using Gulp 5 and Handlebars, featuring optimized asset processing and development workflow.
 
-[![License: CC0](https://img.shields.io/badge/License-CC0-lightgrey.svg)](LICENSE)
+## Requirements
 
-## ✨ Features
+- Node.js >= 18.0.0
+- npm or yarn
 
-- 🛠 **Powerful Build System**:
-  - SCSS compilation with autoprefixer and minification
-  - JavaScript optimization and bundling
-  - Image optimization (JPEG, PNG, SVG)
-- 📦 **Handlebars Integration**:
-  - Layout system for template inheritance
-  - Partial support for reusable components
-  - JSON data integration
-- 🔄 **Development Experience**:
-  - Live reload with BrowserSync
-  - Source maps for SCSS and JS
-  - Error handling and notifications
-  - Optimized production builds
+## Features
 
-## 🚦 Quick Start
+### Build System
 
-1. **Clone and Install**:
+- **Template Engine**: Handlebars with layouts, partials, helpers, and decorators support
+- **CSS Processing**: SCSS compilation with PostCSS, Autoprefixer, and CSSnano
+- **JavaScript**: ES modules support with source maps and Terser minification
+- **Image Optimization**: Automatic compression for JPEG, PNG, SVG, and GIF files
+- **Asset Management**: Intelligent file watching and copying with caching
+- **Development Server**: BrowserSync with live reload and CSS injection
 
-   ```bash
-   git clone https://github.com/aesisify/gulp-handlebars-starter.git
-   cd gulp-handlebars-starter
-   npm install
-   ```
+### Performance Optimizations
 
-2. **Development**:
+- Efficient caching system for templates and assets
+- Incremental builds with `gulp-cached` and `gulp-remember`
+- Source maps for CSS and JavaScript
+- Minification for all assets (HTML, CSS, JS, images)
+- Cache busting for production builds
 
-   ```bash
-   npm run dev     # Start development server with live reload
-   ```
+## Installation
 
-3. **Production**:
-   ```bash
-   npm run build   # Create optimized production build
-   ```
+```bash
+git clone https://github.com/aesisify/gulp-handlebars-starter.git
+cd gulp-handlebars-starter
+npm install
+```
 
-## 📁 Project Structure
+## Usage
+
+### Development
+
+```bash
+npm start    # Starts development server with live reload
+```
+
+### Production Build
+
+```bash
+npm run build    # Creates optimized production build
+```
+
+### Clean
+
+```bash
+npm run clean    # Removes the dist directory
+```
+
+## Project Structure
 
 ```
 .
-├── src/                  # Source files
+├── src/
 │   ├── assets/          # Static assets
-│   │   ├── css/        # SCSS/CSS files
+│   │   ├── css/        # CSS/SCSS files
 │   │   ├── js/         # JavaScript files
 │   │   └── img/        # Images
 │   ├── data/           # JSON data files
 │   └── templates/      # Handlebars templates
 │       ├── layouts/    # Base layouts
 │       ├── pages/      # Page templates
-│       └── partials/   # Reusable components
-├── dist/               # Compiled files (not versioned)
+│       ├── partials/   # Reusable components
+│       ├── helpers/    # Handlebars helper functions
+│       └── decorators/ # Handlebars decorators
+├── dist/               # Compiled files
 ├── gulpfile.js        # Gulp configuration
-└── package.json       # Project dependencies
+└── config.js          # Build configuration
 ```
 
-## 🛠 Development
+## Build System Details
 
-### Template Structure
+### Template Processing
 
-- Use `layouts` for base page structures
-- Create reusable components in `partials`
-- Store page-specific templates in `pages`
-- Add global data in `data/site.json`
+- Handlebars compilation with layout inheritance
+- JSON data integration with hot reloading
+- HTML minification and formatting
+- Automatic partial and helper registration
 
-### Styles
+### Style Processing
 
-- SCSS with modern features
-- Autoprefixer for cross-browser support
+- SCSS compilation with modern features
+- PostCSS integration with Autoprefixer
+- CSS minification and optimization
+- Source maps for development
+
+### JavaScript Processing
+
+- ES modules support
+- Code minification with Terser
 - Source maps for debugging
-- Minification for production
-
-### JavaScript
-
-- ES6+ support
-- Source maps for debugging
-- Terser for minification
 - Console stripping in production
 
-### Assets
+### Asset Processing
 
-- Automatic image optimization
-- SVG optimization
-- Asset copying and watching
-- Cache busting
+- Automatic image optimization (mozjpeg, optipng, svgo, gifsicle)
+- Intelligent file watching and copying
+- Cache busting for production
+- Size reporting for build output
 
-## 🎯 Production Optimizations
+### Development Server
 
-- Minified HTML, CSS, and JavaScript
-- Optimized images
-- Removed source maps
-- Cleaned console logs
-- Proper cache headers
+- Live reload for HTML changes
+- CSS injection without page refresh
+- Automatic browser opening
+- Cross-device testing support
 
-## 📝 License
+## Known Issues
 
-This project is licensed under the CC0 License - see the [LICENSE](LICENSE) file for details.
+### Hot Reloading
 
-## 🤝 Contributing
+- **Decorators and Helpers**: Changes to decorators and helpers require a manual server restart to take effect. The watch system detects the changes but the new implementations are not properly reloaded.
 
-Contributions are welcome! Feel free to:
+## License
 
-1. Fork the repository
-2. Create a feature branch
-3. Submit a Pull Request
+CC0 - See [LICENSE](LICENSE) file for details.
 
-## 💖 Credits
+## Author
 
-Created with ❤️ by [Oğuz 'Aesisify' Gergin](https://github.com/aesisify)
+Created by [Oğuz 'Aesisify' Gergin](https://github.com/aesisify)

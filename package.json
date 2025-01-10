@@ -1,21 +1,21 @@
 {
   "name": "gulp-handlebars-starter",
   "version": "1.0.0",
-  "main": "gulpfile.js",
+  "description": "A simple setup using Gulp and Handlebars (with layout support) to compile HTML, copy assets, and run a live server.",
   "type": "module",
   "scripts": {
-    "serve": "npx gulp",
-    "build": "npx gulp build",
-    "dev": "npx gulp dev"
+    "start": "gulp",
+    "build": "gulp build",
+    "clean": "gulp clean"
   },
   "author": "Oğuz 'Aesisify' Gergin",
   "license": "CC0",
-  "description": "A simple setup using Gulp and Handlebars (with layout support) to compile HTML, copy assets, and run a live server.",
   "devDependencies": {
     "autoprefixer": "^10.4.20",
     "browser-sync": "^3.0.3",
     "cssnano": "^7.0.6",
     "del": "^8.0.0",
+    "glob": "^11.0.0",
     "gulp": "^5.0.0",
     "gulp-cached": "^1.1.1",
     "gulp-changed": "^4.0.3",
@@ -34,10 +34,19 @@
     "gulp-sourcemaps": "^3.0.0",
     "gulp-terser": "^2.1.0",
     "handlebars-layouts": "^3.1.4",
+    "imagemin-gifsicle": "^7.0.0",
     "imagemin-mozjpeg": "^10.0.0",
     "imagemin-optipng": "^8.0.0",
     "imagemin-svgo": "^11.0.1",
-    "prettier": "^3.4.2",
-    "sass": "^1.83.1"
+    "sass": "^1.83.1",
+    "vinyl-fs": "^4.0.0"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
